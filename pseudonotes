@@ -1,0 +1,32 @@
+what are my objects?
+  game board
+    object will display the board
+    it will not check for wins but it will check for a full board
+  cells
+    cells will only need to know what to display on the game board
+    the logic for the win condition will be in the player objects
+
+  players
+    will check for win by storing the moves it made
+    checking move legality will fall on the cells objects
+  
+  score board
+  score cells
+
+game progressions:
+  win conditions:
+    1, 2, 3
+    4, 5, 6
+    7, 8, 9
+    1, 4, 7
+    2, 5, 8
+    3, 6, 9
+    1, 5, 9
+    3, 5, 7
+  if all cells are filled and no winner, add a tie
+  possibly check the player objects themselves, did you make a play on any of these three arrays?
+
+ideas for user input:
+  simply ask user which space to play 1-9
+  throw errors for invalid inputs, using an occupied space, etc
+  possibly add a first to 5 option?

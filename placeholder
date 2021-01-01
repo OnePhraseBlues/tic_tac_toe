@@ -1,0 +1,117 @@
+class GameBoard
+  attr_reader :board
+  def initialize
+    @board = []
+    9.times do
+      @board.push(" ")
+    end
+  end
+  
+  def display
+    horizontal_lines = "-------"
+    first_row = "#{@board[0]} | #{@board[1]} | #{@board[2]}"
+    second_row = "#{@board[3]} | #{@board[4]} | #{@board[5]}"
+    third_row = "#{@board[6]} | #{@board[7]} | #{@board[8]}"
+    puts first_row
+    puts horizontal_lines
+    puts second_row
+    puts horizontal_lines
+    puts third_row
+  end
+
+  def new_game
+    @board = []
+    9.times do
+      @board.push(" ")
+    end
+  end
+
+  def next_turn(player_object, game_space)
+    @board[game_space] = player_object
+  end
+
+  def board_full? #returns true if the board is full
+    if @board.any?(" ")
+      return false
+    else
+      return true
+    end
+  end
+end
+
+class GameCell
+  def initialize
+    attr_accessor :cell
+    @cell = "empty"
+  end
+
+  def check_cell(player)
+    unless @cell == "empty"
+      return false
+    else
+      @cell == player
+      return true
+    end
+  end
+
+  def clear_cell
+    @cell = "empty"
+  end
+end
+
+class Player
+  attr_reader :player
+  attr_accessor :wins, :losses, :ties, :spaces
+  @@players = 0
+  @@WIN_CONDITIONS = [[1, 2, 3],
+                      [4, 5, 6],
+                      [7, 8, 9],
+                      [1, 4, 7],
+                      [2, 5, 8],
+                      [3, 6, 9],
+                      [1, 5, 9],
+                      [3, 5, 7]]
+
+  def initialize
+    if(@@players % 2 == 1)
+      @player = "X"
+      @@players += 1
+    else
+      @player = "O"
+      @@players += 1
+    end
+
+    @wins = 0
+    @losses = 0
+    @ties = 0
+    @spaces = []
+  end
+
+  def play_space(game_cell) #GameCell will need to check if the move is legal
+    @spaces.push(game_cell)
+    @spaces.sort!
+  end
+
+  def winner?(game_cell) #We can check for a win by passing the same variable as before
+    possibilities = []
+    if(@spaces.length < 3)
+      return false
+    else
+      @@WIN_CONDITIONS.each do |array|
+        if array.include?(game_cell)
+          possibilities.push(array)
+        end
+      end
+
+      possibilities.each do |win_condition|
+        if win_condition.all? {|cell| @spaces.include?(cell)}
+          return true
+        else
+          next
+        end
+      end
+      return false
+    end
+  end
+end
+
