@@ -7,7 +7,7 @@ class GameBoard
     @visual_board = []
   end
   
-  def display
+  def board_state
     first_row = "#{@visual_board[6]} | #{@visual_board[7]} | #{@visual_board[8]}"
     second_row = "#{@visual_board[3]} | #{@visual_board[4]} | #{@visual_board[5]}"
     third_row = "#{@visual_board[0]} | #{@visual_board[1]} | #{@visual_board[2]}"
@@ -54,17 +54,17 @@ class GameCell
 end
 
 class Player
-  attr_reader :icon
+  attr_reader :icon, :spaces
   attr_accessor :wins, :losses, :ties
   @@players = 0
   WIN_CONDITIONS = [[1, 2, 3],
-                    [4, 5, 6],
-                    [7, 8, 9],
-                    [1, 4, 7],
-                    [2, 5, 8],
-                    [3, 6, 9],
-                    [1, 5, 9],
-                    [3, 5, 7]]
+                      [4, 5, 6],
+                      [7, 8, 9],
+                      [1, 4, 7],
+                      [2, 5, 8],
+                      [3, 6, 9],
+                      [1, 5, 9],
+                      [3, 5, 7]]
 
   def initialize
     if(@@players % 2 == 0)
@@ -86,18 +86,11 @@ class Player
     @spaces.sort!
   end
 
-  def winner?(last_play) #We can check for a win by passing the same variable as before
-    possibilities = []
+  def winner?
     if(@spaces.length < 3)
       return false
     else
-      WIN_CONDITIONS.each do |array|
-        if array.include?(last_play)
-          possibilities.push(array)
-        end
-      end
-
-      possibilities.each do |win_condition|
+      WIN_CONDITIONS.each do |win_condition|
         if win_condition.all? {|cell| @spaces.include?(cell)}
           return true
         else
@@ -127,8 +120,7 @@ INVALID_MOVE = "That space is taken! Please try again."
 
 turn_counter = 0
 loop do #loop runs until we have a winner
-  current_game.display
-  legal_turn = nil
+  current_game.board_state
   #this variable will keep track of which player is making a move by acting as the index
   active_player = turn_counter % 2
   case active_player
@@ -142,7 +134,9 @@ loop do #loop runs until we have a winner
     turn = gets.to_i
     case turn
     when 1..9
-      turn -= 1 #lining up with GameBoard indices
+      #lining up with GameBoard indices
+      turn -= 1
+      #super complicated statement but here goes: the GameBoard object is an array containing nine GameCell objects. GameCell has a method to check if the space is vacant. If it isn't, logic will go to the else statement and the loop will continue to prompt for proper input. If it is vacant, the legal_move method will also update the cell contents with the Player object icon so that it is no longer vacant.
       if current_game.board[turn].legal_move?(players[active_player].icon)
         legal_move = true
         current_game.visual_board[turn] = current_game.board[turn].cell
@@ -155,18 +149,19 @@ loop do #loop runs until we have a winner
       legal_move = false
     end
     if legal_move
+      #lining back up with win condition spaces (this was the bug)
+      turn += 1
       players[active_player].play_space(turn)
-      legal_turn = turn
       break
     end
   end
 
-  case
-  when players[active_player].winner?(legal_turn)
-    current_game.display
+  if players[active_player].winner?
+    current_game.board_state
     puts "We have a winner! Congratulations #{players[active_player].icon}!"
     break
-  when current_game.board_full?
+  elsif current_game.board_full?
+    current_game.board_state
     puts "Cat's Scratch!"
     break
   else
